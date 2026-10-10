@@ -1,0 +1,26 @@
+{
+  "name": "checklist-automate",
+  "version": "1.0.0",
+  "description": "Automation for checklist",
+  "license": "ISC",
+  "author": "GidliNet",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "date-fns": "^4.4.0",
+    "dotenv": "^18.0.5",
+    "nodemailer": "^10.0.13",
+    "puppeteer": "^25.12.0",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {},
+  "allowScripts": {
+    "puppeteer@25.12.0": true
+  }
+}
