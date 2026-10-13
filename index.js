@@ -1,12 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dotenv from "dotenv"
-import { onedotsix, zabbix } from "./lib/proxies.js"
-import fs from "fs"
+import { zabbix } from "./lib/proxies.js"
 import nodemailer from "nodemailer";
-import { Client } from "ssh2";
 import { format } from "date-fns"
-import { obtain_router_data, build_router_data } from "./lib/tool.js"
-import { get_router_speed_test } from "./lib/routers.js";
+import { build_router_data, build_sitetosite_data } from "./lib/tool.js"
+
 
 
 
@@ -20,7 +18,7 @@ const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH
 const main = async () => {
     const current_date = new Date()
     const full_date_format = format(current_date, 'MM/dd/yyyy')
-    let router_data = []
+
 
     const browser = await puppeteer.launch({
         headless: false,
@@ -34,13 +32,14 @@ const main = async () => {
     browser.close()
 
 
-    const router = await build_router_data(router_data,ROUTER_DETAILS_PATH)
-    const sitetosites=await get_router_speed_test("172.17.4.191",process.env.TEST_ROUTER_USERNAME,process.env.TEST_ROUTER_PASSWORD,"172.17.100.253",process.env.TEST_ROUTER_USERNAME,process.env.TEST_ROUTER_PASSWORD)
-    console.log(sitetosites)
+    const router = await build_router_data(ROUTER_DETAILS_PATH)
+    const sitetosite = await build_sitetosite_data(process.env.SITETOSITE_DETAILS_PATH)
+
+
 
 
     const transporter = nodemailer.createTransport({
-        host:process.env.EMAIL_HOST,
+        host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
         secure: false,
         auth: {
@@ -67,15 +66,19 @@ const main = async () => {
             to: process.env.EMAIL_TO,
             subject: "KMM Network Checklist",
             html: `
+    <body style="font-family:monospace">
     <h1>Network Checklist ${full_date_format} </h1>
-    <h4>Site Zabbix Screenshot</h4>
-    <img src="cid:ZabbixScreenshot" alt="Site Zabbix Screenshot" width="640" height="360"/>
+    </br>
+    <h4>${process.env.SITE} Zabbix Screenshot</h4>
+    </br>
+    <img src="cid:ZabbixScreenshot" alt="${process.env.SITE} Zabbix Screenshot" width="640" height="360"/>
+</br>
+            ${router}
+            ${sitetosite}
 
-    ${router}
 
-    Sites
-    Site 1- Latency, Download, Upload
-    Site 2- Latency, Download, Upload
+            <p>This automated checklist was generated on ${new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" })}.</p>
+    </body>
                 `,
             attachments: [{
                 filename: "Zabbix",
