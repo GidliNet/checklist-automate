@@ -21,11 +21,11 @@ const main = async () => {
 
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         defaultViewport: {
             width: 1920, height: 1080
         }, acceptInsecureCerts: true,
-        args: ['--start-maximized']
+        args: ['']
     })
     const page = await browser.newPage()
     await zabbix("http://192.168.36.118/zabbix/index.php", page, process.env.ZABBIX_USER, process.env.ZABBIX_PASSWORD, "ZabbixSnap")
