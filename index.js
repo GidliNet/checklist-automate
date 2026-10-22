@@ -13,13 +13,10 @@ const PASSWORD = process.env.PASS;
 const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH;
 const COMPONENTS=process.env.COMPONENTS_PATH
 const main = async () => {
-  console.log(btoa("script:315scr!pt$"))
   const current_date = new Date();
   const full_date_format = format(current_date, "MM-dd-yyyy");
   const component=await fs.readFileSync(COMPONENTS,"utf-8")
-  console.log(component)
   const op_sys=await os.platform()!=="win32"?true:false
-  console.log(op_sys)
   const puppeteer_params = {
     headless:op_sys ,
     defaultViewport: {
@@ -65,7 +62,7 @@ const main = async () => {
   });
   try {
     await transporter.verify();
-    console.log("Server is ready to take our messages");
+    console.log("Connected to Mail Server");
   } catch (err) {
     console.error("Verification failed:", err);
   }
