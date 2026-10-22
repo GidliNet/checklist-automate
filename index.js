@@ -91,12 +91,7 @@ const main = async () => {
           filename: "Zabbix",
           path: "./Screenshots/ZabbixSnap.jpg",
           cid: "ZabbixScreenshot",
-        },
-        {
-          filename: "Proxy 1.6.jpg",
-          path: "./Screenshots/Proxy 1.6.jpg",
-          cid: "ZabbixScreenshot",
-        },
+        }
       ],
     });
   } catch (e) {
