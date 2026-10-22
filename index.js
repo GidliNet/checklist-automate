@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import { format } from "date-fns";
 import { build_router_data, build_sitetosite_data } from "./lib/tool.js";
 import fs from "node:fs"
+import os from 'node:os';
 dotenv.config();
 
 const USERNAME = process.env.USER;
@@ -17,14 +18,17 @@ const main = async () => {
   const full_date_format = format(current_date, "MM-dd-yyyy");
   const component=await fs.readFileSync(COMPONENTS,"utf-8")
   console.log(component)
+  const op_sys=await os.platform()=="win32"?true:false
+  console.log(op_sys)
   const puppeteer_params = {
-    headless: false,
+    headless:op_sys ,
     defaultViewport: {
       width: 1920,
       height: 1080,
     },
     acceptInsecureCerts: true,
-    args: [  '--no-sandbox',
+    args: [
+        '--no-sandbox',
     '--disable-setuid-sandbox',
     '--disable-dev-shm-usage', 
     '--disable-gpu',
