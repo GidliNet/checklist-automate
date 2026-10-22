@@ -1,71 +1,72 @@
-import puppeteer from "puppeteer";
-import * as dotenv from "dotenv"
-import { zabbix } from "./lib/proxies.js"
+
+import * as dotenv from "dotenv";
+import { zabbix } from "./lib/zabbix.js";
 import nodemailer from "nodemailer";
-import { format } from "date-fns"
-import { build_router_data, build_sitetosite_data } from "./lib/tool.js"
+import { format } from "date-fns";
+import { build_router_data, build_sitetosite_data } from "./lib/tool.js";
+import fs from "node:fs"
+dotenv.config();
 
-
-
-
-dotenv.config()
-
-
-const USERNAME = process.env.USER
-const PASSWORD = process.env.PASS
-const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH
-
+const USERNAME = process.env.USER;
+const PASSWORD = process.env.PASS;
+const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH;
+const COMPONENTS=process.env.COMPONENTS_PATH
 const main = async () => {
-    const current_date = new Date()
-    const full_date_format = format(current_date, 'MM/dd/yyyy')
+  console.log(btoa("script:315scr!pt$"))
+  const current_date = new Date();
+  const full_date_format = format(current_date, "MM-dd-yyyy");
+  const component=await fs.readFileSync(COMPONENTS,"utf-8")
+  console.log(component)
+  const puppeteer_params = {
+    headless: false,
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+    acceptInsecureCerts: true,
+    args: [""],
+  };
 
 
-    const browser = await puppeteer.launch({
-        headless: true,
-        defaultViewport: {
-            width: 1920, height: 1080
-        }, acceptInsecureCerts: true,
-        args: ['']
-    })
-    const page = await browser.newPage()
-    await zabbix("http://192.168.36.118/zabbix/index.php", page, process.env.ZABBIX_USER, process.env.ZABBIX_PASSWORD, "ZabbixSnap")
-    browser.close()
+  await zabbix(
+    "http://192.168.36.118/zabbix/index.php",
+    process.env.ZABBIX_USER,
+    process.env.ZABBIX_PASSWORD,
+    "ZabbixSnap",puppeteer_params
+  );
+  const router = await build_router_data(ROUTER_DETAILS_PATH);
+  const sitetosite = await build_sitetosite_data(
+    process.env.SITETOSITE_DETAILS_PATH,
+  );
 
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      minVersion: "TLSv1.2",
+      maxVersion: "TLSv1.2",
+      ciphers: "DEFAULT:@SECLEVEL=1",
+      rejectUnauthorized: false,
+    },
+  });
+  try {
+    await transporter.verify();
+    console.log("Server is ready to take our messages");
+  } catch (err) {
+    console.error("Verification failed:", err);
+  }
 
-    const router = await build_router_data(ROUTER_DETAILS_PATH)
-    const sitetosite = await build_sitetosite_data(process.env.SITETOSITE_DETAILS_PATH)
-
-
-
-
-    const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: false,
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        }, tls: {
-            minVersion: 'TLSv1.2',
-            maxVersion: 'TLSv1.2',
-            ciphers: 'DEFAULT:@SECLEVEL=1',
-            rejectUnauthorized: false
-        }
-    });
-    try {
-        await transporter.verify();
-        console.log("Server is ready to take our messages");
-    } catch (err) {
-        console.error("Verification failed:", err);
-    }
-
-    try {
-
-        const info = await transporter.sendMail({
-            from: process.env.EMAIL_FROM,
-            to: process.env.EMAIL_TO,
-            subject: "KMM Network Checklist",
-            html: `
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: process.env.EMAIL_TO,
+      subject: `315 Network Checklist ${full_date_format}`,
+      html: `
     <body style="font-family:monospace">
     <h1>Network Checklist ${full_date_format} </h1>
     </br>
@@ -80,28 +81,22 @@ const main = async () => {
             <p>This automated checklist was generated on ${new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" })}.</p>
     </body>
                 `,
-            attachments: [{
-                filename: "Zabbix",
-                path: "./Screenshots/ZabbixSnap.jpg",
-                cid: "ZabbixScreenshot"
-            }, {
-                filename: "Proxy 1.6.jpg",
-                path: "./Screenshots/Proxy 1.6.jpg",
-                cid: "ZabbixScreenshot"
-            },]
-        })
-    }
-    catch (e) {
-        console.log(e)
-    }
+      attachments: [
+        {
+          filename: "Zabbix",
+          path: "./Screenshots/ZabbixSnap.jpg",
+          cid: "ZabbixScreenshot",
+        },
+        {
+          filename: "Proxy 1.6.jpg",
+          path: "./Screenshots/Proxy 1.6.jpg",
+          cid: "ZabbixScreenshot",
+        },
+      ],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-
-
-
-
-
-
-}
-
-
-main()
+main();
