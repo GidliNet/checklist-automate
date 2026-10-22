@@ -24,7 +24,12 @@ const main = async () => {
       height: 1080,
     },
     acceptInsecureCerts: true,
-    args: [""],
+    args: [  '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage', 
+    '--disable-gpu',
+    '--js-flags="--max-old-space-size=512"' 
+],
   };
 
 
@@ -65,10 +70,9 @@ const main = async () => {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
-      subject: `315 Network Checklist ${full_date_format}`,
+      subject: `${process.env.SUBJECT_HEADER_STATEMENT} ${full_date_format}`,
       html: `
     <body style="font-family:monospace">
-    <h1>Network Checklist ${full_date_format} </h1>
     </br>
     <h4>${process.env.SITE} Zabbix Screenshot</h4>
     </br>
