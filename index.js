@@ -2,10 +2,10 @@
 import * as dotenv from "dotenv";
 import { zabbix } from "./lib/zabbix.js";
 import nodemailer from "nodemailer";
-import { format } from "date-fns";
-import { build_router_data, build_sitetosite_data } from "./lib/tool.js";
+import { build_router_data, build_sitetosite_data,date_formatter } from "./lib/tool.js";
 import fs from "node:fs"
 import os from 'node:os';
+import { onedotsix } from "./lib/proxies.js";
 dotenv.config();
 
 const USERNAME = process.env.USER;
@@ -13,8 +13,9 @@ const PASSWORD = process.env.PASS;
 const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH;
 const COMPONENTS=process.env.COMPONENTS_PATH
 const main = async () => {
-  const current_date = new Date();
-  const full_date_format = format(current_date, "MM-dd-yyyy");
+
+
+  const full_date_format = await date_formatter()
   const component=await fs.readFileSync(COMPONENTS,"utf-8")
   const op_sys=await os.platform()!=="win32"?true:false
   const puppeteer_params = {
@@ -33,19 +34,20 @@ const main = async () => {
 ],
   };
 
-
   await zabbix(
     "http://192.168.36.118/zabbix/index.php",
     process.env.ZABBIX_USER,
     process.env.ZABBIX_PASSWORD,
     "ZabbixSnap",puppeteer_params
   );
+
+
+
   const router = await build_router_data(ROUTER_DETAILS_PATH);
   const sitetosite = await build_sitetosite_data(
     process.env.SITETOSITE_DETAILS_PATH,
   );
 
-  
 
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -91,7 +93,7 @@ const main = async () => {
       attachments: [
         {
           filename: "Zabbix",
-          path: "./Screenshots/ZabbixSnap.jpg",
+          path: `./Screenshots/${full_date_format}/ZabbixSnap.jpg`,
           cid: "ZabbixScreenshot",
         }
       ],
