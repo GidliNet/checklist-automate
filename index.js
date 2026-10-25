@@ -14,8 +14,8 @@ const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH;
 const COMPONENTS=process.env.COMPONENTS_PATH
 const main = async () => {
 
-
   const full_date_format = await date_formatter()
+  console.log(`Initiating checklist for date ${new Date()}`)
   const component=await fs.readFileSync(COMPONENTS,"utf-8")
   const op_sys=await os.platform()!=="win32"?true:false
   const puppeteer_params = {
