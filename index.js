@@ -66,7 +66,7 @@ const main = async () => {
   });
   try {
     await transporter.verify();
-    console.log("Connected to Mail Server");
+    console.log("\r\nConnected to Mail Server");
   } catch (err) {
     console.error("Verification failed:", err);
   }
@@ -98,6 +98,7 @@ const main = async () => {
         }
       ],
     });
+    console.log("\n\rChecklist done and sent to email list.")
   } catch (e) {
     console.log(e);
   }
