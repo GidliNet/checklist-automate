@@ -79,6 +79,8 @@ const main = async () => {
     console.error("Verification failed:", err);
   }
 
+
+  
   try {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
