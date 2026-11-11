@@ -1,21 +1,16 @@
 
 import * as dotenv from "dotenv";
-import { zabbix } from "./lib/zabbix.js";
 import nodemailer from "nodemailer";
-import { build_router_data, build_sitetosite_data, date_formatter } from "./lib/tool.js";
-import { build_speedtest_data } from "./lib/speedtest.js"
+import { date_formatter } from "./lib/tool.js";
 import fs from "node:fs"
 import os from 'node:os';
-import { onedotsix } from "./lib/proxies.js";
 import { proxmox } from "./lib/proxmox.js";
+import { zabbix } from "./lib/zabbix.js";
 dotenv.config();
 
-const USERNAME = process.env.USER;
-const PASSWORD = process.env.PASS;
-const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH;
 const COMPONENTS = process.env.COMPONENTS_PATH
 const SPEEDTEST_API_KEY = process.env.SPEEDTEST_API_KEY
-const PROXMOX_SECRET = process.env.PROXMOX_SECRET
+const PROXMOX_CONFIG_PATH = process.env.PROXMOX_CONFIG_PATH
 const main = async () => {
   console.log(SPEEDTEST_API_KEY)
   const full_date_format = await date_formatter()
@@ -38,12 +33,12 @@ const main = async () => {
     ],
   };
 
-  // await zabbix(
-  //   "http://192.168.36.118/zabbix/index.php",
-  //   process.env.ZABBIX_USER,
-  //   process.env.ZABBIX_PASSWORD,
-  //   "ZabbixSnap", puppeteer_params
-  // );
+  await zabbix(
+    "http://192.168.36.118/zabbix/index.php",
+    process.env.ZABBIX_USER,
+    process.env.ZABBIX_PASSWORD,
+    "ZabbixSnap", puppeteer_params
+  );
 
 
 
@@ -56,7 +51,7 @@ const main = async () => {
 
   // const internet_speed_status = await build_speedtest_data(SPEEDTEST_API_KEY);
 
-  await proxmox(PROXMOX_SECRET)
+  const proxmox_detail = await proxmox(PROXMOX_CONFIG_PATH)
 
 
   const transporter = nodemailer.createTransport({
@@ -83,38 +78,39 @@ const main = async () => {
 
 
 
-  //   try {
-  //     const info = await transporter.sendMail({
-  //       from: process.env.EMAIL_FROM,
-  //       to: process.env.EMAIL_TO,
-  //       subject: `${process.env.SUBJECT_HEADER_STATEMENT} ${full_date_format}`,
-  //       html: `
-  //     <body style="font-family:monospace">
-  //     </br>
-  //     <h4>${process.env.SITE} Zabbix Screenshot</h4>
-  //     </br>
-  //     <img src="cid:ZabbixScreenshot" alt="${process.env.SITE} Zabbix Screenshot" width="640" height="360"/>
-  // </br>
-  //             ${router}
-  //             ${sitetosite}
-  //             ${internet_speed_status }
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: process.env.EMAIL_TO,
+      subject: `${process.env.SUBJECT_HEADER_STATEMENT} ${full_date_format}`,
+      html: `
+      <body style="font-family:monospace">
+      </br>
+      <h4>${process.env.SITE} Zabbix Screenshot</h4>
+      </br>
+      <img src="cid:ZabbixScreenshot" alt="${process.env.SITE} Zabbix Screenshot" width="640" height="360"/>
+  </br>
+              ${/*router*/""}
+              ${/*sitetosite*/""}
+              ${/*internet_speed_status*/ ""}
+              ${proxmox_detail}
 
 
-  //             <p>This automated checklist was generated on ${new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" })}.</p>
-  //     </body>
-  //                 `,
-  //       attachments: [
-  //         {
-  //           filename: "Zabbix",
-  //           path: `./Screenshots/${full_date_format}/ZabbixSnap.jpg`,
-  //           cid: "ZabbixScreenshot",
-  //         }
-  //       ],
-  //     });
-  //     console.log("\n\rChecklist done and sent to email list.")
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
+              <p>This automated checklist was generated on ${new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" })}.</p>
+      </body>
+                  `,
+      attachments: [
+        {
+          filename: "Zabbix",
+          path: `./Screenshots/${full_date_format}/ZabbixSnap.jpg`,
+          cid: "ZabbixScreenshot",
+        }
+      ],
+    });
+    console.log("\n\rChecklist done and sent to email list.")
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 main();
