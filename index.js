@@ -1,16 +1,19 @@
 
 import * as dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { date_formatter } from "./lib/tool.js";
+import { date_formatter, build_router_data,build_sitetosite_data } from "./lib/tool.js";
 import fs from "node:fs"
 import os from 'node:os';
 import { proxmox } from "./lib/proxmox.js";
 import { zabbix } from "./lib/zabbix.js";
+import {build_speedtest_data} from "./lib/speedtest.js"
+
 dotenv.config();
 
 const COMPONENTS = process.env.COMPONENTS_PATH
 const SPEEDTEST_API_KEY = process.env.SPEEDTEST_API_KEY
 const PROXMOX_CONFIG_PATH = process.env.PROXMOX_CONFIG_PATH
+const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH
 const main = async () => {
   console.log(SPEEDTEST_API_KEY)
   const full_date_format = await date_formatter()
@@ -40,17 +43,11 @@ const main = async () => {
     "ZabbixSnap", puppeteer_params
   );
 
-
-
-  // const router = await build_router_data(ROUTER_DETAILS_PATH);
-
-
-  // const sitetosite = await build_sitetosite_data(
-  //   process.env.SITETOSITE_DETAILS_PATH,
-  // );
-
-  // const internet_speed_status = await build_speedtest_data(SPEEDTEST_API_KEY);
-
+  const router = await build_router_data(ROUTER_DETAILS_PATH);
+  const sitetosite = await build_sitetosite_data(
+    process.env.SITETOSITE_DETAILS_PATH,
+  );
+  const internet_speed_status = await build_speedtest_data(SPEEDTEST_API_KEY);
   const proxmox_detail = await proxmox(PROXMOX_CONFIG_PATH)
 
 
@@ -90,9 +87,9 @@ const main = async () => {
       </br>
       <img src="cid:ZabbixScreenshot" alt="${process.env.SITE} Zabbix Screenshot" width="640" height="360"/>
   </br>
-              ${/*router*/""}
-              ${/*sitetosite*/""}
-              ${/*internet_speed_status*/ ""}
+              ${router}
+              ${sitetosite}
+              ${internet_speed_status}
               ${proxmox_detail}
 
 
