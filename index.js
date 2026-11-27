@@ -40,17 +40,11 @@ const main = async () => {
     "ZabbixSnap", puppeteer_params
   );
 
-
-
-  // const router = await build_router_data(ROUTER_DETAILS_PATH);
-
-
-  // const sitetosite = await build_sitetosite_data(
-  //   process.env.SITETOSITE_DETAILS_PATH,
-  // );
-
-  // const internet_speed_status = await build_speedtest_data(SPEEDTEST_API_KEY);
-
+  const router = await build_router_data(ROUTER_DETAILS_PATH);
+  const sitetosite = await build_sitetosite_data(
+    process.env.SITETOSITE_DETAILS_PATH,
+  );
+  const internet_speed_status = await build_speedtest_data(SPEEDTEST_API_KEY);
   const proxmox_detail = await proxmox(PROXMOX_CONFIG_PATH)
 
 
@@ -90,9 +84,9 @@ const main = async () => {
       </br>
       <img src="cid:ZabbixScreenshot" alt="${process.env.SITE} Zabbix Screenshot" width="640" height="360"/>
   </br>
-              ${/*router*/""}
-              ${/*sitetosite*/""}
-              ${/*internet_speed_status*/ ""}
+              ${router}
+              ${sitetosite}
+              ${internet_speed_status}
               ${proxmox_detail}
 
 
