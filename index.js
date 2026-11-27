@@ -1,11 +1,12 @@
 
 import * as dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { date_formatter } from "./lib/tool.js";
+import { date_formatter, build_router_data } from "./lib/tool.js";
 import fs from "node:fs"
 import os from 'node:os';
 import { proxmox } from "./lib/proxmox.js";
 import { zabbix } from "./lib/zabbix.js";
+
 dotenv.config();
 
 const COMPONENTS = process.env.COMPONENTS_PATH
