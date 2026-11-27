@@ -12,6 +12,7 @@ dotenv.config();
 const COMPONENTS = process.env.COMPONENTS_PATH
 const SPEEDTEST_API_KEY = process.env.SPEEDTEST_API_KEY
 const PROXMOX_CONFIG_PATH = process.env.PROXMOX_CONFIG_PATH
+const ROUTER_DETAILS_PATH = process.env.ROUTER_DETAILS_PATH
 const main = async () => {
   console.log(SPEEDTEST_API_KEY)
   const full_date_format = await date_formatter()
